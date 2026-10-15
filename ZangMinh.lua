@@ -1,7 +1,4 @@
--- Dam bao game da tai xong hoan toan
-if not game:IsLoaded() then
-    game.Loaded:Wait()
-end
+repeat task.wait() until game:IsLoaded()     
 
 -- XOA MENU CU NEU CO DE TRANH TRUNG LAP
 local CoreGui = game:GetService("CoreGui")
