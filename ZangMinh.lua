@@ -9,7 +9,7 @@ end
 -- BIEN CAU HINH HE THONG
 local SKILL_SEQUENCE = {}
 local DELAY_BETWEEN_SKILLS = 0.1
-local COOLDOWN_LOOP = 0.3
+local COOLDOWN_LOOP = 0.1
 _G.AutoSkillActive = false
 
 -- KHOI TAO INTERFACE
