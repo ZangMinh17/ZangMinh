@@ -16,7 +16,7 @@ local DELAY = 0.7
 local SCAN_DELAY = 1
 local HOUSE_WAIT = 2
 local CHECK_DELAY = 0.1
-local CycleCooldown = 60
+local CycleCooldown = 40
 local CandyThreshold = 0
 local CandyWaitTimeout = 1
 
@@ -567,7 +567,7 @@ FarmTab:CreateButton({
 FarmTab:CreateSection("Cycle Settings")
 FarmTab:CreateInput({
     Name = "Cooldown giữa các vòng (giây)",
-    CurrentValue = "60",
+    CurrentValue = "40",
     PlaceholderText = "Nhập số giây",
     RemoveTextAfterFocusLost = false,
     Flag = "CycleCooldown",
