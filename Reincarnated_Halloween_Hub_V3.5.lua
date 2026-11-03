@@ -18,7 +18,7 @@ local HOUSE_WAIT = 2
 local CHECK_DELAY = 0.1
 local CycleCooldown = 60
 local CandyThreshold = 0
-local CandyWaitTimeout = 30
+local CandyWaitTimeout = 1
 
 local Running = {Crate = false, House = false, Candy = false}
 local Busy = false
