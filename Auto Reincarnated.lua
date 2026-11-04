@@ -43,8 +43,8 @@ local suffix = {
     UDE = 12,
     DDE = 13,
     TDE = 14,
-    QdDe = 15,
-    QnDe = 16
+    QDDE = 15,
+    QNDE = 16
 }
 
 local function parseMoney(str)
