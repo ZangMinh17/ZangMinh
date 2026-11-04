@@ -15,7 +15,7 @@ local main = interface.Frames.Main
 
 -- SETTINGS
 local CHECK_INTERVAL = 2
-local RB_TIMEOUT = 20
+local RB_TIMEOUT = 100
 
 local enabled = false
 local busy = false
@@ -132,7 +132,7 @@ stroke.Parent = frame
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1, 0, 0, 30)
 title.BackgroundTransparency = 1
-title.Text = "OPIUMWARE V6"
+title.Text = "Reincarnated-Hub"
 title.TextColor3 = Color3.new(1, 1, 1)
 title.Font = Enum.Font.GothamBold
 title.TextSize = 15
