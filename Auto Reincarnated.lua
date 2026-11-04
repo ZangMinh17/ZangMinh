@@ -14,7 +14,7 @@ local interface = pg:WaitForChild("Interface")
 local main = interface.Frames.Main
 
 -- SETTINGS
-local LOAD_WAIT = 8
+local LOAD_WAIT = 0
 local CHECK_INTERVAL = 1
 local RB_TIMEOUT = 20
 
