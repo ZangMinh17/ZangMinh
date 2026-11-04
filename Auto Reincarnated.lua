@@ -28,42 +28,36 @@ local moneyLabel = interface.Overlays.Currencies.Money.Label
 local lifeLabel = rbRoot:FindFirstChild("Life", true)
 
 -- MONEY SUFFIXES
+
 local suffix = {
-    K = 1,
-    M = 2,
-    B = 3,
-    T = 4,
-    QA = 5,
-    QN = 6,
-    SX = 7,
-    SP = 8,
-    O = 9,
-    N = 10,
-    DE = 11,
-    UDE = 12,
-    DDE = 13,
-    TDE = 14,
-    QDDE = 15,
-    QNDE = 16
+    K = 1, M = 2, B = 3, T = 4,
+    QA = 5, QN = 6, SX = 7, SP = 8,
+    O = 9, N = 10, DE = 11,
+    UDE = 12, DDE = 13, TDE = 14,
+    QDDE = 15, QNDE = 16
 }
 
-local function parseMoney(str)
-    if not str then return nil end
+local function parseMoney(value)
+    if not value then return 0 end
 
-    str = str:gsub("<.->", "")
-    str = str:gsub("%$", "")
-    str = str:gsub(",", "")
-    str = str:upper():gsub("%s+", "")
+    value = tostring(value)
+        :gsub("<[^>]->", "")
+        :gsub("%$", "")
+        :gsub(",", "")
+        :gsub("%s+", "")
+        :upper()
 
-    local number, unit = str:match("^([%d%.]+)(%a*)$")
-    number = tonumber(number)
+    local number, unit = value:match("([%d%.]+)([A-Z]+)")
 
-    if not number then return nil end
+    if not number then
+        return tonumber(value) or 0
+    end
 
-    local power = unit == "" and 0 or suffix[unit]
-    if power == nil then return nil end
+    local amount = tonumber(number)
+    if not amount then return 0 end
 
-    return number * (1000 ^ power)
+    local power = suffix[unit] or 0
+    return amount * (1000 ^ power)
 end
 
 -- BUTTON ACTIVATION (ORIGINAL V4)
