@@ -15,7 +15,7 @@ local main = interface.Frames.Main
 
 -- SETTINGS
 local CHECK_INTERVAL = 2
-local RB_TIMEOUT = 100
+local RB_TIMEOUT = 10000000000000000
 
 local enabled = false
 local busy = false
