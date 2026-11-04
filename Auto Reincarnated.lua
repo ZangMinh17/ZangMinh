@@ -1,8 +1,8 @@
 
 --==================================================
--- OPIUMWARE V4
--- AUTO LOAD + AUTO REINCARNATE
--- ON / OFF | DRAG UI
+-- OPIUMWARE V6
+-- AUTO REINCARNATE ONLY
+-- ON / OFF | DRAG UI | LOW CONSOLE
 --==================================================
 
 local Players = game:GetService("Players")
@@ -14,33 +14,20 @@ local interface = pg:WaitForChild("Interface")
 local main = interface.Frames.Main
 
 -- SETTINGS
-local LOAD_WAIT = 0
-local CHECK_INTERVAL = 1
+local CHECK_INTERVAL = 2
 local RB_TIMEOUT = 20
 
 local enabled = false
 local busy = false
 
---==================================================
--- EXACT GUI PATHS
---==================================================
-
-local loadButton = main.ProgressionNew.Holder.List
-    .Blueprints.Holder.Row.Buttons.LoadAll
-
+-- GUI PATHS
 local rbRoot = main.Progression.Holder.List.Reincarnate
-
 local rbButton = rbRoot.Holder.Reincarnate
 local priceLabel = rbRoot.Holder.Price
-
 local moneyLabel = interface.Overlays.Currencies.Money.Label
-
 local lifeLabel = rbRoot:FindFirstChild("Life", true)
 
---==================================================
--- MONEY SYSTEM
---==================================================
-
+-- MONEY SUFFIXES
 local suffix = {
     K = 1,
     M = 2,
@@ -66,44 +53,29 @@ local function parseMoney(str)
     str = str:gsub(",", "")
     str = str:upper():gsub("%s+", "")
 
-    local number, unit =
-        str:match("^([%d%.]+)(%a*)$")
-
+    local number, unit = str:match("^([%d%.]+)(%a*)$")
     number = tonumber(number)
 
     if not number then return nil end
 
-    local power = suffix[unit]
-
-    if unit == "" then
-        power = 0
-    end
-
-    if power == nil then
-        return nil
-    end
+    local power = unit == "" and 0 or suffix[unit]
+    if power == nil then return nil end
 
     return number * (1000 ^ power)
 end
 
---==================================================
--- GUI EVENT ACTIVATION
---==================================================
-
+-- BUTTON ACTIVATION (ORIGINAL V4)
 local function activateButton(button)
     if not enabled then return false end
 
     if not button or not button:IsA("GuiButton") then
-        warn("[AUTO] Invalid button")
         return false
     end
 
     if not button.Visible or not button.Active then
-        warn("[AUTO] Button not ready:", button:GetFullName())
         return false
     end
 
-    -- Activate the actual GUI event callbacks
     local success, connections = pcall(
         getconnections,
         button.Activated
@@ -116,39 +88,28 @@ local function activateButton(button)
                     connection:Fire()
                 end)
 
-                if fired then
-                    print("[AUTO] CALLBACK FIRED:", button.Name)
-                    return true
-                end
+                if fired then return true end
             end
         end
     end
 
-    -- Fallback: Activated signal
     if typeof(firesignal) == "function" then
         local ok = pcall(function()
             firesignal(button.Activated)
         end)
 
-        if ok then
-            print("[AUTO] SIGNAL FIRED:", button.Name)
-            return true
-        end
+        if ok then return true end
     end
 
-    warn("[AUTO] Cannot activate:", button.Name)
     return false
 end
 
---==================================================
 -- UI
---==================================================
-
-local old = pg:FindFirstChild("OpiumwareV4")
+local old = pg:FindFirstChild("OpiumwareV6")
 if old then old:Destroy() end
 
 local gui = Instance.new("ScreenGui")
-gui.Name = "OpiumwareV4"
+gui.Name = "Reincarnated-Hub"
 gui.ResetOnSpawn = false
 gui.DisplayOrder = 999
 gui.Parent = pg
@@ -171,7 +132,7 @@ stroke.Parent = frame
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1, 0, 0, 30)
 title.BackgroundTransparency = 1
-title.Text = "OPIUMWARE V4"
+title.Text = "OPIUMWARE V6"
 title.TextColor3 = Color3.new(1, 1, 1)
 title.Font = Enum.Font.GothamBold
 title.TextSize = 15
@@ -181,7 +142,7 @@ local toggle = Instance.new("TextButton")
 toggle.Size = UDim2.new(1, -20, 0, 38)
 toggle.Position = UDim2.fromOffset(10, 35)
 toggle.BackgroundColor3 = Color3.fromRGB(145, 45, 45)
-toggle.Text = "AUTO: OFF"
+toggle.Text = "AUTO RB: OFF"
 toggle.TextColor3 = Color3.new(1, 1, 1)
 toggle.Font = Enum.Font.GothamBold
 toggle.TextSize = 15
@@ -204,26 +165,22 @@ local function setStatus(value)
     status.Text = "STATUS: " .. value
 end
 
+-- TOGGLE
 toggle.Activated:Connect(function()
     enabled = not enabled
 
     if enabled then
-        toggle.Text = "AUTO: ON"
+        toggle.Text = "AUTO RB: ON"
         toggle.BackgroundColor3 = Color3.fromRGB(30, 145, 75)
         setStatus("STARTING")
-        print("[AUTO] ENABLED")
     else
-        toggle.Text = "AUTO: OFF"
+        toggle.Text = "AUTO RB: OFF"
         toggle.BackgroundColor3 = Color3.fromRGB(145, 45, 45)
         setStatus("STOPPED")
-        print("[AUTO] DISABLED")
     end
 end)
 
---==================================================
 -- DRAG
---==================================================
-
 local dragging = false
 local dragStart
 local startPos
@@ -260,38 +217,7 @@ UIS.InputEnded:Connect(function(input)
     end
 end)
 
---==================================================
--- AUTO LOAD
---==================================================
-
-local function autoLoad()
-    if not enabled then return false end
-
-    setStatus("LOADING")
-
-    print("[AUTO] ACTIVATING LOAD ALL")
-
-    if not activateButton(loadButton) then
-        setStatus("LOAD FAILED")
-        return false
-    end
-
-    local start = os.clock()
-
-    while enabled and os.clock() - start < LOAD_WAIT do
-        task.wait(0.2)
-    end
-
-    if not enabled then return false end
-
-    setStatus("LOAD WAIT FINISHED")
-    return true
-end
-
---==================================================
 -- AUTO REINCARNATE
---==================================================
-
 local function autoRB()
     if not enabled then return false end
 
@@ -300,13 +226,8 @@ local function autoRB()
 
     if not money or not price then
         setStatus("CURRENCY ERROR")
-        warn("[AUTO] MONEY:", moneyLabel.Text)
-        warn("[AUTO] PRICE:", priceLabel.Text)
         return false
     end
-
-    print("[AUTO] MONEY:", moneyLabel.Text)
-    print("[AUTO] PRICE:", priceLabel.Text)
 
     if money < price then
         setStatus("WAITING FOR MONEY")
@@ -314,8 +235,6 @@ local function autoRB()
     end
 
     setStatus("ENOUGH MONEY - RB")
-
-    print("[AUTO] ENOUGH MONEY!")
 
     local oldLife = lifeLabel and lifeLabel.Text
     local oldMoney = moneyLabel.Text
@@ -337,47 +256,26 @@ local function autoRB()
             or priceLabel.Text ~= oldPrice
 
         if changed then
-            print("[AUTO] RB CHANGE DETECTED")
             setStatus("RB SUCCESS")
             return true
         end
     end
 
-    warn("[AUTO] RB NOT CONFIRMED")
     setStatus("RB NOT CONFIRMED")
-
     return false
 end
 
---==================================================
 -- MAIN LOOP
---==================================================
-
-print("================================")
-print(" OPIUMWARE V4 LOADED")
-print(" Press ON to start")
-print("================================")
+print("[OPIUMWARE] V6 AUTO RB LOADED")
 
 while gui.Parent do
-
     if enabled and not busy then
         busy = true
 
         local ok, err = pcall(function()
-
-            -- Load when ON
-            if not autoLoad() then
-                return
-            end
-
             while enabled do
-
                 if autoRB() then
                     task.wait(3)
-
-                    if enabled then
-                        autoLoad()
-                    end
                 else
                     task.wait(CHECK_INTERVAL)
                 end
@@ -385,7 +283,7 @@ while gui.Parent do
         end)
 
         if not ok then
-            warn("[AUTO] ERROR:", err)
+            warn("[AUTO RB] ERROR:", err)
             setStatus("ERROR")
         end
 
