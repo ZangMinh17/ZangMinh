@@ -34,7 +34,8 @@ local suffix = {
     QA = 5, QN = 6, SX = 7, SP = 8,
     O = 9, N = 10, DE = 11,
     UDE = 12, DDE = 13, TDE = 14,
-    QDDE = 15, QNDE = 16
+    QDDE = 15, QNDE = 16, SXDE = 17, SPDE = 18,
+    OCDE = 19, DEDE=20
 }
 
 local function parseMoney(value)
